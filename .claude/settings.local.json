@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const {slugify} = require\\('./src/utils/slugify'\\); console.log\\(slugify\\('H. Ayuntamiento de Arivechí'\\)\\); console.log\\(slugify\\('Inauguración del Parque Público'\\)\\);\")",
+      "Bash(npx prisma *)",
+      "Bash(npm view *)",
+      "Bash(node --check src/app.js)",
+      "Bash(node --check src/controllers/auth.controller.js)",
+      "Bash(node --check src/controllers/municipios.controller.js)",
+      "Bash(node --check src/controllers/noticias.controller.js)",
+      "Bash(node --check src/routes/auth.routes.js)",
+      "Bash(node -e \"const app = require\\('./src/app.js'\\); console.log\\('App cargada OK:', typeof app === 'function'\\); console.log\\('Rutas registradas:', app._router.stack.filter\\(l => l.route || l.name === 'router'\\).length\\);\")"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Municipio {
+  id            String        @id @default(uuid())
+  nombre        String
+  slug          String        @unique
+  estado        String        @default("Sonora")
+  escudoUrl     String?
+  dominio       String?
+  activo        Boolean       @default(true)
+  creadoEn      DateTime      @default(now())
+  actualizadoEn DateTime      @updatedAt
+  usuarios      Usuario[]
+  noticias      Noticia[]
+  documentos    Documento[]
+  imagenes      Imagen[]
+  funcionarios  Funcionario[]
+}
+
+model Usuario {
+  id           String    @id @default(uuid())
+  municipioId  String
+  municipio    Municipio @relation(fields: [municipioId], references: [id])
+  nombre       String
+  email        String    @unique
+  passwordHash String
+  rol          String    @default("editor")
+  activo       Boolean   @default(true)
+  creadoEn     DateTime  @default(now())
+  ultimoLogin  DateTime?
+  noticias     Noticia[]
+}
+
+model Noticia {
+  id            String    @id @default(uuid())
+  municipioId   String
+  municipio     Municipio @relation(fields: [municipioId], references: [id])
+  titulo        String
+  slug          String
+  contenido     String
+  extracto      String?
+  imagenUrl     String?
+  categoria     String?
+  estado        String    @default("borrador")
+  publicarEn    DateTime?
+  autorId       String?
+  autor         Usuario?  @relation(fields: [autorId], references: [id])
+  creadoEn      DateTime  @default(now())
+  actualizadoEn DateTime  @updatedAt
+
+  @@unique([municipioId, slug])
+}
+
+model Documento {
+  id          String    @id @default(uuid())
+  municipioId String
+  municipio   Municipio @relation(fields: [municipioId], references: [id])
+  titulo      String
+  descripcion String?
+  archivoUrl  String
+  tipo        String?
+  categoria   String?
+  anio        Int?
+  trimestre   Int?
+  creadoEn    DateTime  @default(now())
+}
+
+model Imagen {
+  id           String    @id @default(uuid())
+  municipioId  String
+  municipio    Municipio @relation(fields: [municipioId], references: [id])
+  titulo       String?
+  descripcion  String?
+  url          String
+  urlThumbnail String?
+  galeria      String    @default("general")
+  altText      String?
+  orden        Int       @default(0)
+  creadoEn     DateTime  @default(now())
+}
+
+model Funcionario {
+  id          String    @id @default(uuid())
+  municipioId String
+  municipio   Municipio @relation(fields: [municipioId], references: [id])
+  nombre      String
+  cargo       String
+  area        String?
+  email       String?
+  telefono    String?
+  fotoUrl     String?
+  orden       Int       @default(0)
+  activo      Boolean   @default(true)
+}
