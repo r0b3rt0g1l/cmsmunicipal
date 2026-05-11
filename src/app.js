@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth.routes');
 const municipiosRoutes = require('./routes/municipios.routes');
 const noticiasRoutes = require('./routes/noticias.routes');
 const imagenesRoutes = require('./routes/imagenes.routes');
+const documentosRoutes = require('./routes/documentos.routes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/municipios', municipiosRoutes);
 app.use('/api/municipios/:municipio/noticias', noticiasRoutes);
 app.use('/api/municipios/:municipio/imagenes', imagenesRoutes);
+app.use('/api/municipios/:municipio/documentos', documentosRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Ruta no encontrada', path: req.originalUrl });
