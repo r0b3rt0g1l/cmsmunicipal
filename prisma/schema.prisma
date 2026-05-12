@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Municipio {
@@ -22,6 +23,7 @@ model Municipio {
   documentos    Documento[]
   imagenes      Imagen[]
   funcionarios  Funcionario[]
+  heroSlides    HeroSlide[]
 }
 
 model Usuario {
@@ -98,4 +100,20 @@ model Funcionario {
   fotoUrl     String?
   orden       Int       @default(0)
   activo      Boolean   @default(true)
+}
+
+model HeroSlide {
+  id            String    @id @default(uuid())
+  municipioId   String
+  municipio     Municipio @relation(fields: [municipioId], references: [id])
+  imagenUrl     String
+  etiqueta      String?
+  titulo        String
+  subtitulo     String?
+  textoBoton    String?
+  linkBoton     String?
+  orden         Int       @default(0)
+  activo        Boolean   @default(true)
+  creadoEn      DateTime  @default(now())
+  actualizadoEn DateTime  @updatedAt
 }
