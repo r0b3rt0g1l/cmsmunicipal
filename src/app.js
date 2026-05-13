@@ -10,6 +10,7 @@ const municipiosRoutes = require('./routes/municipios.routes');
 const noticiasRoutes = require('./routes/noticias.routes');
 const imagenesRoutes = require('./routes/imagenes.routes');
 const documentosRoutes = require('./routes/documentos.routes');
+const sevacRoutes = require('./routes/sevac.routes');
 const heroRoutes = require('./routes/hero.routes');
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/municipios', municipiosRoutes);
 app.use('/api/municipios/:municipio/noticias', noticiasRoutes);
 app.use('/api/municipios/:municipio/imagenes', imagenesRoutes);
 app.use('/api/municipios/:municipio/documentos', documentosRoutes);
+app.use('/api/municipios/:municipio/sevac', sevacRoutes);
 app.use('/api/municipios/:municipio/hero', heroRoutes);
 
 app.use((req, res, next) => {

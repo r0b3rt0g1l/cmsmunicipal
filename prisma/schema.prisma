@@ -24,6 +24,7 @@ model Municipio {
   imagenes      Imagen[]
   funcionarios  Funcionario[]
   heroSlides    HeroSlide[]
+  sevacDocumentos SevacDocumento[] @relation("SevacMunicipio")
 }
 
 model Usuario {
@@ -116,4 +117,19 @@ model HeroSlide {
   activo        Boolean   @default(true)
   creadoEn      DateTime  @default(now())
   actualizadoEn DateTime  @updatedAt
+}
+
+model SevacDocumento {
+  id            String   @id @default(uuid())
+  municipioId   String
+  municipio     Municipio @relation("SevacMunicipio", fields: [municipioId], references: [id])
+  titulo        String
+  descripcion   String?
+  archivoUrl    String
+  categoria     String?
+  tipo          String?
+  anio          Int?
+  trimestre     String?
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 }
