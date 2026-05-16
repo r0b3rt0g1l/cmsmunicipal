@@ -73,6 +73,18 @@ model Documento {
   anio        Int?
   trimestre   Int?
   creadoEn    DateTime  @default(now())
+  actualizadoEn       DateTime  @updatedAt @default(now())
+  slug                String?
+  ambito              String?
+  fileSize            Int?
+  mimeType            String?
+  fileName            String?
+  cloudinaryPublicId  String?
+  publicado           Boolean   @default(true)
+  orden               Int       @default(0)
+
+  @@index([municipioId, categoria])
+  @@index([municipioId, anio, trimestre])
 }
 
 model Imagen {
@@ -132,4 +144,14 @@ model SevacDocumento {
   trimestre     String?
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
+  slug                String?
+  fileSize            Int?
+  mimeType            String?
+  fileName            String?
+  cloudinaryPublicId  String?
+  publicado           Boolean   @default(true)
+  orden               Int       @default(0)
+
+  @@index([municipioId, anio, trimestre])
+  @@index([municipioId, categoria])
 }

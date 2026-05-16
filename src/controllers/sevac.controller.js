@@ -1,18 +1,62 @@
 const prisma = require('../config/database');
 const { cloudinary } = require('../config/cloudinary');
 const { badRequest, notFound } = require('../utils/errors');
+const { slugify } = require('../utils/slugify');
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const ALLOWED_MIME = 'application/pdf';
+
+async function generarSlugUnico(municipioId, titulo, excludeId) {
+  const base = slugify(titulo);
+  if (!base) return null;
+  let candidato = base;
+  let n = 1;
+  while (true) {
+    const where = { municipioId, slug: candidato };
+    if (excludeId) where.NOT = { id: excludeId };
+    const existe = await prisma.sevacDocumento.findFirst({ where });
+    if (!existe) return candidato;
+    n += 1;
+    candidato = `${base}-${n}`;
+  }
+}
+
+function parsePublicado(v, defaultValue) {
+  if (v === undefined) return defaultValue;
+  if (v === false || v === 'false' || v === '0' || v === 0) return false;
+  return true;
+}
+
+async function destroyConFallback(publicId, mimeType) {
+  if (!publicId) return;
+  const candidatos = mimeType && mimeType.includes('pdf') ? ['image', 'raw'] : ['image'];
+  for (const resourceType of candidatos) {
+    try {
+      const r = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+      if (r && r.result === 'ok') return;
+    } catch (err) {
+      console.error(`Cloudinary destroy (${resourceType}) fallo:`, err.message);
+    }
+  }
+}
 
 async function list(req, res, next) {
   try {
-    const { categoria, anio } = req.query;
+    const { categoria, anio, trimestre } = req.query;
 
-    const where = { municipioId: req.municipio.id };
+    const where = { municipioId: req.municipio.id, publicado: true };
     if (categoria) where.categoria = categoria;
     if (anio) where.anio = parseInt(anio, 10);
+    if (trimestre) where.trimestre = trimestre;
 
     const documentos = await prisma.sevacDocumento.findMany({
       where,
-      orderBy: { creadoEn: 'desc' },
+      orderBy: [
+        { orden: 'asc' },
+        { anio: 'desc' },
+        { trimestre: 'desc' },
+        { creadoEn: 'desc' },
+      ],
     });
 
     res.json(documentos);
@@ -26,27 +70,114 @@ async function create(req, res, next) {
     if (!req.file) {
       throw badRequest('No se recibio ningun archivo');
     }
+    if (req.file.mimetype !== ALLOWED_MIME) {
+      throw badRequest('El archivo debe ser PDF (application/pdf)');
+    }
+    if (req.file.size > MAX_FILE_SIZE) {
+      throw badRequest('El archivo excede el tamano maximo de 25 MB');
+    }
 
-    const { titulo, descripcion, tipo, categoria, anio, trimestre } = req.body;
+    const { titulo, descripcion, tipo, categoria, anio, trimestre, publicado, orden } = req.body;
 
-    if (!titulo) {
+    if (!titulo || !String(titulo).trim()) {
       throw badRequest('El titulo es requerido');
     }
+
+    let anioInt = null;
+    if (anio !== undefined && anio !== '') {
+      anioInt = parseInt(anio, 10);
+      if (Number.isNaN(anioInt)) throw badRequest('anio invalido');
+    }
+
+    const slug = await generarSlugUnico(req.municipio.id, titulo);
 
     const documento = await prisma.sevacDocumento.create({
       data: {
         municipioId: req.municipio.id,
-        titulo,
+        titulo: String(titulo).trim(),
         descripcion: descripcion || null,
         archivoUrl: req.file.path,
         tipo: tipo || null,
         categoria: categoria || null,
-        anio: anio ? parseInt(anio, 10) : null,
+        anio: anioInt,
         trimestre: trimestre || null,
+        slug,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        fileName: req.file.originalname,
+        cloudinaryPublicId: req.file.filename || null,
+        publicado: parsePublicado(publicado, true),
+        orden: orden !== undefined && orden !== '' ? parseInt(orden, 10) : 0,
       },
     });
 
     res.status(201).json(documento);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function update(req, res, next) {
+  try {
+    const existente = await prisma.sevacDocumento.findUnique({ where: { id: req.params.id } });
+    if (!existente || existente.municipioId !== req.municipio.id) {
+      throw notFound('Documento SEvAC no encontrado');
+    }
+
+    const { titulo, descripcion, tipo, categoria, anio, trimestre, publicado, orden } = req.body;
+    const data = {};
+
+    if (titulo !== undefined) {
+      if (!String(titulo).trim()) throw badRequest('titulo no puede estar vacio');
+      data.titulo = String(titulo).trim();
+      data.slug = await generarSlugUnico(req.municipio.id, titulo, existente.id);
+    }
+    if (descripcion !== undefined) data.descripcion = descripcion || null;
+    if (tipo !== undefined) data.tipo = tipo || null;
+    if (categoria !== undefined) data.categoria = categoria || null;
+    if (anio !== undefined) {
+      if (anio === '' || anio === null) {
+        data.anio = null;
+      } else {
+        const n = parseInt(anio, 10);
+        if (Number.isNaN(n)) throw badRequest('anio invalido');
+        data.anio = n;
+      }
+    }
+    if (trimestre !== undefined) {
+      data.trimestre = trimestre || null;
+    }
+    if (publicado !== undefined) data.publicado = parsePublicado(publicado, true);
+    if (orden !== undefined) data.orden = parseInt(orden, 10);
+
+    let publicIdAntiguo = null;
+    let mimeAntiguo = null;
+    if (req.file) {
+      if (req.file.mimetype !== ALLOWED_MIME) {
+        throw badRequest('El archivo debe ser PDF (application/pdf)');
+      }
+      if (req.file.size > MAX_FILE_SIZE) {
+        throw badRequest('El archivo excede el tamano maximo de 25 MB');
+      }
+      publicIdAntiguo = existente.cloudinaryPublicId;
+      mimeAntiguo = existente.mimeType;
+      data.archivoUrl = req.file.path;
+      data.fileSize = req.file.size;
+      data.mimeType = req.file.mimetype;
+      data.fileName = req.file.originalname;
+      data.cloudinaryPublicId = req.file.filename || null;
+    }
+
+    const actualizado = await prisma.sevacDocumento.update({
+      where: { id: existente.id },
+      data,
+    });
+
+    if (publicIdAntiguo) {
+      await destroyConFallback(publicIdAntiguo, mimeAntiguo);
+    }
+
+    res.json(actualizado);
   } catch (err) {
     next(err);
   }
@@ -59,12 +190,12 @@ async function remove(req, res, next) {
       throw notFound('Documento SEvAC no encontrado');
     }
 
-    const match = documento.archivoUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/i);
-    if (match && match[1]) {
-      try {
-        await cloudinary.uploader.destroy(match[1]);
-      } catch (cloudErr) {
-        console.error('Error al borrar de Cloudinary:', cloudErr.message);
+    if (documento.cloudinaryPublicId) {
+      await destroyConFallback(documento.cloudinaryPublicId, documento.mimeType);
+    } else {
+      const match = documento.archivoUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/i);
+      if (match && match[1]) {
+        await destroyConFallback(match[1], documento.mimeType);
       }
     }
 
@@ -75,4 +206,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, create, remove };
+module.exports = { list, create, update, remove };
