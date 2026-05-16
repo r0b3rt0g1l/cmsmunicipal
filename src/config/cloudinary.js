@@ -12,9 +12,17 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
     const municipioSlug = req.municipio?.slug || 'general';
-    const galeria = req.body?.galeria || 'general';
+    const baseUrl = req.baseUrl || '';
+    let subfolder;
+    if (baseUrl.includes('/documentos')) {
+      subfolder = 'transparencia/documentos';
+    } else if (baseUrl.includes('/sevac')) {
+      subfolder = 'transparencia/sevac';
+    } else {
+      subfolder = req.body?.galeria || 'general';
+    }
     return {
-      folder: `cms-municipal/${municipioSlug}/${galeria}`,
+      folder: `cms-municipal/${municipioSlug}/${subfolder}`,
       resource_type: 'auto',
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf'],
     };
@@ -24,7 +32,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: 25 * 1024 * 1024,
   },
 });
 
