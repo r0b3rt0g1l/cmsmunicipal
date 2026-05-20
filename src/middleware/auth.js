@@ -18,7 +18,10 @@ async function auth(req, res, next) {
       throw unauthorized('Token invalido o expirado');
     }
 
-    const usuario = await prisma.usuario.findUnique({ where: { id: payload.id } });
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: payload.id },
+      include: { municipio: { select: { id: true, slug: true, nombre: true, activo: true } } },
+    });
     if (!usuario || !usuario.activo) {
       throw unauthorized('Usuario no encontrado o inactivo');
     }

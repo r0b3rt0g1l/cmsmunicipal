@@ -56,7 +56,10 @@ async function login(req, res, next) {
       throw badRequest('email y password son requeridos');
     }
 
-    const usuario = await prisma.usuario.findUnique({ where: { email } });
+    const usuario = await prisma.usuario.findUnique({
+      where: { email },
+      include: { municipio: { select: { slug: true, nombre: true } } },
+    });
     if (!usuario || !usuario.activo) {
       throw unauthorized('Credenciales invalidas');
     }
@@ -64,6 +67,10 @@ async function login(req, res, next) {
     const ok = await bcrypt.compare(password, usuario.passwordHash);
     if (!ok) {
       throw unauthorized('Credenciales invalidas');
+    }
+
+    if (!usuario.municipio) {
+      throw badRequest('Usuario sin municipio asociado');
     }
 
     const token = jwt.sign(
@@ -82,6 +89,8 @@ async function login(req, res, next) {
       usuario: {
         id: usuario.id,
         municipioId: usuario.municipioId,
+        municipioSlug: usuario.municipio.slug,
+        municipioNombre: usuario.municipio.nombre,
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
@@ -94,8 +103,19 @@ async function login(req, res, next) {
 
 async function me(req, res, next) {
   try {
-    const { id, municipioId, nombre, email, rol, activo, creadoEn, ultimoLogin } = req.user;
-    res.json({ id, municipioId, nombre, email, rol, activo, creadoEn, ultimoLogin });
+    const { id, municipioId, nombre, email, rol, activo, creadoEn, ultimoLogin, municipio } = req.user;
+    res.json({
+      id,
+      municipioId,
+      nombre,
+      email,
+      rol,
+      activo,
+      creadoEn,
+      ultimoLogin,
+      municipioSlug: municipio?.slug ?? null,
+      municipioNombre: municipio?.nombre ?? null,
+    });
   } catch (err) {
     next(err);
   }
