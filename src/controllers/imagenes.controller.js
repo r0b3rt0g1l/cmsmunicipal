@@ -2,6 +2,13 @@ const prisma = require('../config/database');
 const { cloudinary } = require('../config/cloudinary');
 const { badRequest, notFound } = require('../utils/errors');
 
+function buildThumbnailUrl(originalUrl) {
+  if (typeof originalUrl !== 'string' || !originalUrl.includes('/upload/')) {
+    return originalUrl;
+  }
+  return originalUrl.replace('/upload/', '/upload/w_400,q_auto,c_limit/');
+}
+
 async function list(req, res, next) {
   try {
     const { galeria } = req.query;
@@ -36,7 +43,7 @@ async function create(req, res, next) {
         titulo: titulo || null,
         descripcion: descripcion || null,
         url: req.file.path,
-        urlThumbnail: req.file.path,
+        urlThumbnail: buildThumbnailUrl(req.file.path),
         altText: altText || null,
         galeria: galeria || 'general',
         orden: orden ? parseInt(orden, 10) : 0,
@@ -115,7 +122,7 @@ async function replace(req, res, next) {
       where: { id: imagen.id },
       data: {
         url: req.file.path,
-        urlThumbnail: req.file.path,
+        urlThumbnail: buildThumbnailUrl(req.file.path),
       },
     });
 
