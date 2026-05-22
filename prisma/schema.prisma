@@ -9,21 +9,21 @@ datasource db {
 }
 
 model Municipio {
-  id            String        @id @default(uuid())
-  nombre        String
-  slug          String        @unique
-  estado        String        @default("Sonora")
-  escudoUrl     String?
-  dominio       String?
-  activo        Boolean       @default(true)
-  creadoEn      DateTime      @default(now())
-  actualizadoEn DateTime      @updatedAt
-  usuarios      Usuario[]
-  noticias      Noticia[]
-  documentos    Documento[]
-  imagenes      Imagen[]
-  funcionarios  Funcionario[]
-  heroSlides    HeroSlide[]
+  id              String           @id @default(uuid())
+  nombre          String
+  slug            String           @unique
+  estado          String           @default("Sonora")
+  escudoUrl       String?
+  dominio         String?
+  activo          Boolean          @default(true)
+  creadoEn        DateTime         @default(now())
+  actualizadoEn   DateTime         @updatedAt
+  usuarios        Usuario[]
+  noticias        Noticia[]
+  documentos      Documento[]
+  imagenes        Imagen[]
+  funcionarios    Funcionario[]
+  heroSlides      HeroSlide[]
   sevacDocumentos SevacDocumento[] @relation("SevacMunicipio")
 }
 
@@ -62,26 +62,26 @@ model Noticia {
 }
 
 model Documento {
-  id          String    @id @default(uuid())
-  municipioId String
-  municipio   Municipio @relation(fields: [municipioId], references: [id])
-  titulo      String
-  descripcion String?
-  archivoUrl  String
-  tipo        String?
-  categoria   String?
-  anio        Int?
-  trimestre   Int?
-  creadoEn    DateTime  @default(now())
-  actualizadoEn       DateTime  @updatedAt @default(now())
-  slug                String?
-  ambito              String?
-  fileSize            Int?
-  mimeType            String?
-  fileName            String?
-  cloudinaryPublicId  String?
-  publicado           Boolean   @default(true)
-  orden               Int       @default(0)
+  id                 String    @id @default(uuid())
+  municipioId        String
+  municipio          Municipio @relation(fields: [municipioId], references: [id])
+  titulo             String
+  descripcion        String?
+  archivoUrl         String
+  tipo               String?
+  categoria          String?
+  anio               Int?
+  trimestre          Int?
+  creadoEn           DateTime  @default(now())
+  actualizadoEn      DateTime  @default(now()) @updatedAt
+  slug               String?
+  ambito             String?
+  fileSize           Int?
+  mimeType           String?
+  fileName           String?
+  cloudinaryPublicId String?
+  publicado          Boolean   @default(true)
+  orden              Int       @default(0)
 
   @@index([municipioId, categoria])
   @@index([municipioId, anio, trimestre])
@@ -101,18 +101,33 @@ model Imagen {
   creadoEn     DateTime  @default(now())
 }
 
+enum TipoMiembroCabildo {
+  PRESIDENTE
+  SINDICA
+  REGIDOR
+  DIF
+}
+
 model Funcionario {
-  id          String    @id @default(uuid())
-  municipioId String
-  municipio   Municipio @relation(fields: [municipioId], references: [id])
-  nombre      String
-  cargo       String
-  area        String?
-  email       String?
-  telefono    String?
-  fotoUrl     String?
-  orden       Int       @default(0)
-  activo      Boolean   @default(true)
+  id                 String              @id @default(uuid())
+  municipioId        String
+  municipio          Municipio           @relation(fields: [municipioId], references: [id])
+  nombre             String
+  cargo              String
+  area               String?
+  email              String?
+  telefono           String?
+  fotoUrl            String?
+  cloudinaryPublicId String?
+  tipo               TipoMiembroCabildo?
+  bio                String?
+  administracion     String?
+  orden              Int                 @default(0)
+  activo             Boolean             @default(true)
+  creadoEn           DateTime            @default(now())
+  actualizadoEn      DateTime            @updatedAt
+
+  @@index([municipioId, tipo, orden])
 }
 
 model HeroSlide {
@@ -132,25 +147,25 @@ model HeroSlide {
 }
 
 model SevacDocumento {
-  id            String   @id @default(uuid())
-  municipioId   String
-  municipio     Municipio @relation("SevacMunicipio", fields: [municipioId], references: [id])
-  titulo        String
-  descripcion   String?
-  archivoUrl    String
-  categoria     String?
-  tipo          String?
-  anio          Int?
-  trimestre     String?
-  creadoEn      DateTime @default(now())
-  actualizadoEn DateTime @updatedAt
-  slug                String?
-  fileSize            Int?
-  mimeType            String?
-  fileName            String?
-  cloudinaryPublicId  String?
-  publicado           Boolean   @default(true)
-  orden               Int       @default(0)
+  id                 String    @id @default(uuid())
+  municipioId        String
+  municipio          Municipio @relation("SevacMunicipio", fields: [municipioId], references: [id])
+  titulo             String
+  descripcion        String?
+  archivoUrl         String
+  categoria          String?
+  tipo               String?
+  anio               Int?
+  trimestre          String?
+  creadoEn           DateTime  @default(now())
+  actualizadoEn      DateTime  @updatedAt
+  slug               String?
+  fileSize           Int?
+  mimeType           String?
+  fileName           String?
+  cloudinaryPublicId String?
+  publicado          Boolean   @default(true)
+  orden              Int       @default(0)
 
   @@index([municipioId, anio, trimestre])
   @@index([municipioId, categoria])
