@@ -12,6 +12,7 @@ const imagenesRoutes = require('./routes/imagenes.routes');
 const documentosRoutes = require('./routes/documentos.routes');
 const sevacRoutes = require('./routes/sevac.routes');
 const heroRoutes = require('./routes/hero.routes');
+const funcionariosRoutes = require('./routes/funcionarios.routes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/municipios/:municipio/imagenes', imagenesRoutes);
 app.use('/api/municipios/:municipio/documentos', documentosRoutes);
 app.use('/api/municipios/:municipio/sevac', sevacRoutes);
 app.use('/api/municipios/:municipio/hero', heroRoutes);
+app.use('/api/municipios/:municipio/funcionarios', funcionariosRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Ruta no encontrada', path: req.originalUrl });

@@ -18,6 +18,8 @@ const storage = new CloudinaryStorage({
       subfolder = 'transparencia/documentos';
     } else if (baseUrl.includes('/sevac')) {
       subfolder = 'transparencia/sevac';
+    } else if (baseUrl.includes('/funcionarios')) {
+      subfolder = 'cabildo/funcionarios';
     } else {
       subfolder = req.body?.galeria || 'general';
     }
