@@ -9,22 +9,24 @@ datasource db {
 }
 
 model Municipio {
-  id              String           @id @default(uuid())
-  nombre          String
-  slug            String           @unique
-  estado          String           @default("Sonora")
-  escudoUrl       String?
-  dominio         String?
-  activo          Boolean          @default(true)
-  creadoEn        DateTime         @default(now())
-  actualizadoEn   DateTime         @updatedAt
-  usuarios        Usuario[]
-  noticias        Noticia[]
-  documentos      Documento[]
-  imagenes        Imagen[]
-  funcionarios    Funcionario[]
-  heroSlides      HeroSlide[]
-  sevacDocumentos SevacDocumento[] @relation("SevacMunicipio")
+  id                      String           @id @default(uuid())
+  nombre                  String
+  slug                    String           @unique
+  estado                  String           @default("Sonora")
+  escudoUrl               String?
+  dominio                 String?
+  portadaHistoriaUrl      String?
+  portadaHistoriaPublicId String?
+  activo                  Boolean          @default(true)
+  creadoEn                DateTime         @default(now())
+  actualizadoEn           DateTime         @updatedAt
+  usuarios                Usuario[]
+  noticias                Noticia[]
+  documentos              Documento[]
+  imagenes                Imagen[]
+  funcionarios            Funcionario[]
+  heroSlides              HeroSlide[]
+  sevacDocumentos         SevacDocumento[] @relation("SevacMunicipio")
 }
 
 model Usuario {
