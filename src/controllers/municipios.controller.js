@@ -1,6 +1,6 @@
 const prisma = require('../config/database');
 const { slugify } = require('../utils/slugify');
-const { badRequest, notFound, conflict } = require('../utils/errors');
+const { badRequest, notFound, conflict, forbidden } = require('../utils/errors');
 
 async function list(req, res, next) {
   try {
@@ -65,6 +65,14 @@ async function update(req, res, next) {
     const existente = await prisma.municipio.findUnique({ where: { slug: req.params.slug } });
     if (!existente) {
       throw notFound('Municipio no encontrado');
+    }
+
+    // Aislamiento de tenants: un admin solo puede editar SU propio municipio.
+    // Este router no pasa por resolveMunicipio (usa :slug), asi que validamos
+    // contra el registro recien cargado. Escape hatch para superadmin (rol no
+    // existe hoy en el modelo Usuario; queda listo para administracion global).
+    if (req.user.rol !== 'superadmin' && req.user.municipioId !== existente.id) {
+      throw forbidden('No autorizado para este municipio');
     }
 
     const { nombre, slug, estado, escudoUrl, dominio, activo } = req.body;
