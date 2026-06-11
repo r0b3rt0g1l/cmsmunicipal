@@ -76,7 +76,7 @@ async function login(req, res, next) {
     const token = jwt.sign(
       { id: usuario.id, rol: usuario.rol, municipioId: usuario.municipioId },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
 
     await prisma.usuario.update({
