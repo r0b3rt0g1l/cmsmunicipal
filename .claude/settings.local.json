@@ -12,7 +12,9 @@
       "Bash(node --check src/controllers/municipios.controller.js)",
       "Bash(node --check src/controllers/noticias.controller.js)",
       "Bash(node --check src/routes/auth.routes.js)",
-      "Bash(node -e \"const app = require\\('./src/app.js'\\); console.log\\('App cargada OK:', typeof app === 'function'\\); console.log\\('Rutas registradas:', app._router.stack.filter\\(l => l.route || l.name === 'router'\\).length\\);\")"
+      "Bash(node -e \"const app = require\\('./src/app.js'\\); console.log\\('App cargada OK:', typeof app === 'function'\\); console.log\\('Rutas registradas:', app._router.stack.filter\\(l => l.route || l.name === 'router'\\).length\\);\")",
+      "Bash(git check-ignore *)",
+      "Bash(node -e ' *)"
     ]
   }
 }

@@ -17,7 +17,20 @@ const portadaHistoriaRoutes = require('./routes/portada-historia.routes');
 
 const app = express();
 
-app.use(cors());
+// Whitelist de orígenes permitidos (cierra el CORS abierto, hallazgo I4).
+const allowedOrigins = [
+  'https://baviacora.vercel.app',
+  'https://banamichi-gobierno.vercel.app',
+  'https://huachinera-gobierno.vercel.app',
+  'https://cms-admin-taupe.vercel.app',
+];
+// Solo en desarrollo local: exporta CORS_ALLOW_LOCALHOST=true en tu .env.
+// Render NO define esta var, así que localhost nunca se permite en producción.
+if (process.env.CORS_ALLOW_LOCALHOST === 'true') {
+  allowedOrigins.push('http://localhost:3000');
+}
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('dev'));
 
