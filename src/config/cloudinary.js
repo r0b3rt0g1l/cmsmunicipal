@@ -22,6 +22,8 @@ const storage = new CloudinaryStorage({
       subfolder = 'cabildo/funcionarios';
     } else if (baseUrl.includes('/portada-historia')) {
       subfolder = 'apariencia/portada-historia';
+    } else if (baseUrl.includes('/noticias')) {
+      subfolder = 'noticias';
     } else {
       subfolder = req.body?.galeria || 'general';
     }

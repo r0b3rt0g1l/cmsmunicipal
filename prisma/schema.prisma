@@ -52,6 +52,7 @@ model Noticia {
   contenido     String
   extracto      String?
   imagenUrl     String?
+  cloudinaryPublicId String?
   categoria     String?
   estado        String    @default("borrador")
   publicarEn    DateTime?
