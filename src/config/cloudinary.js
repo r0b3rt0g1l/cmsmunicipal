@@ -24,6 +24,10 @@ const storage = new CloudinaryStorage({
       subfolder = 'apariencia/portada-historia';
     } else if (baseUrl.includes('/noticias')) {
       subfolder = 'noticias';
+    } else if (baseUrl.includes('/contenidos')) {
+      subfolder = 'apariencia/contenidos';
+    } else if (baseUrl.includes('/estadisticas')) {
+      subfolder = 'apariencia/estadisticas';
     } else {
       subfolder = req.body?.galeria || 'general';
     }
