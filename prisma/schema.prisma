@@ -27,6 +27,8 @@ model Municipio {
   funcionarios            Funcionario[]
   heroSlides              HeroSlide[]
   sevacDocumentos         SevacDocumento[] @relation("SevacMunicipio")
+  contenidosEditables     ContenidoEditable[]
+  estadisticas            Estadistica[]
 }
 
 model Usuario {
@@ -182,4 +184,41 @@ model SevacDocumento {
 
   @@index([municipioId, anio, trimestre])
   @@index([municipioId, categoria])
+}
+
+// Bloques de contenido editables por CLAVE (encabezados de página y banners).
+// Aditivo y multi-tenant: cada municipio tiene su propio juego de claves.
+model ContenidoEditable {
+  id                 String    @id @default(uuid())
+  municipioId        String
+  municipio          Municipio @relation(fields: [municipioId], references: [id])
+  clave              String
+  titulo             String?
+  descripcion        String?
+  imagenUrl          String?
+  cloudinaryPublicId String?
+  activo             Boolean   @default(true)
+  creadoEn           DateTime  @default(now())
+  actualizadoEn      DateTime  @updatedAt
+
+  @@unique([municipioId, clave])
+  @@index([municipioId])
+}
+
+// Estadísticas del home (cuadros editables). `valor` es String para permitir
+// "Por designar" o vacío. Aditivo y multi-tenant.
+model Estadistica {
+  id                 String    @id @default(uuid())
+  municipioId        String
+  municipio          Municipio @relation(fields: [municipioId], references: [id])
+  titulo             String
+  valor              String
+  iconoUrl           String?
+  cloudinaryPublicId String?
+  activo             Boolean   @default(true)
+  orden              Int       @default(0)
+  creadoEn           DateTime  @default(now())
+  actualizadoEn      DateTime  @updatedAt
+
+  @@index([municipioId, orden])
 }
