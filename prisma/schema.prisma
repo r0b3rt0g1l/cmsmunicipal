@@ -40,6 +40,12 @@ model Usuario {
   activo       Boolean   @default(true)
   creadoEn     DateTime  @default(now())
   ultimoLogin  DateTime?
+  // 2FA (TOTP). Campos aditivos: opcionales / con default, no rompen filas
+  // existentes. La verificación de TOTP en el login es una fase posterior;
+  // por ahora estos campos solo los usan los endpoints /api/auth/2fa/*.
+  totpSecret    String?
+  totpEnabled   Boolean   @default(false)
+  totpEnabledAt DateTime?
   noticias     Noticia[]
 }
 
