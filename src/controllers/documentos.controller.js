@@ -4,7 +4,15 @@ const { badRequest, notFound } = require('../utils/errors');
 const { slugify } = require('../utils/slugify');
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
-const ALLOWED_MIME = 'application/pdf';
+// PDF e imágenes (la seccion "Informacion Importante" del portal acepta ambos).
+// Cloudinary ya admite estos formatos (resource_type:'auto', allowed_formats).
+const ALLOWED_MIMES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]);
 
 async function generarSlugUnico(municipioId, titulo, excludeId) {
   const base = slugify(titulo);
@@ -71,8 +79,8 @@ async function create(req, res, next) {
     if (!req.file) {
       throw badRequest('No se recibio ningun archivo');
     }
-    if (req.file.mimetype !== ALLOWED_MIME) {
-      throw badRequest('El archivo debe ser PDF (application/pdf)');
+    if (!ALLOWED_MIMES.has(req.file.mimetype)) {
+      throw badRequest('El archivo debe ser PDF o imagen (JPG, PNG, GIF, WebP)');
     }
     if (req.file.size > MAX_FILE_SIZE) {
       throw badRequest('El archivo excede el tamano maximo de 25 MB');
@@ -170,8 +178,8 @@ async function update(req, res, next) {
     let publicIdAntiguo = null;
     let mimeAntiguo = null;
     if (req.file) {
-      if (req.file.mimetype !== ALLOWED_MIME) {
-        throw badRequest('El archivo debe ser PDF (application/pdf)');
+      if (!ALLOWED_MIMES.has(req.file.mimetype)) {
+        throw badRequest('El archivo debe ser PDF o imagen (JPG, PNG, GIF, WebP)');
       }
       if (req.file.size > MAX_FILE_SIZE) {
         throw badRequest('El archivo excede el tamano maximo de 25 MB');
