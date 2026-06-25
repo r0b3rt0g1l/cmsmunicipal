@@ -15,6 +15,7 @@ const heroRoutes = require('./routes/hero.routes');
 const funcionariosRoutes = require('./routes/funcionarios.routes');
 const portadaHistoriaRoutes = require('./routes/portada-historia.routes');
 const contenidosRoutes = require('./routes/contenidos.routes');
+const atractivosRoutes = require('./routes/atractivos.routes');
 const estadisticasRoutes = require('./routes/estadisticas.routes');
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/municipios/:municipio/hero', heroRoutes);
 app.use('/api/municipios/:municipio/funcionarios', funcionariosRoutes);
 app.use('/api/municipios/:municipio/portada-historia', portadaHistoriaRoutes);
 app.use('/api/municipios/:municipio/contenidos', contenidosRoutes);
+app.use('/api/municipios/:municipio/atractivos', atractivosRoutes);
 app.use('/api/municipios/:municipio/estadisticas', estadisticasRoutes);
 
 app.use((req, res, next) => {

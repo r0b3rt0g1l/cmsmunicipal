@@ -31,6 +31,16 @@ const storage = new CloudinaryStorage({
     } else {
       subfolder = req.body?.galeria || 'general';
     }
+    // Atractivos turísticos: portada y galería son SIEMPRE imágenes y van a sus
+    // propias subcarpetas (turismo/atractivos/portadas | /galeria).
+    if (baseUrl.includes('/atractivos')) {
+      const sub = file.fieldname === 'portada' ? 'portadas' : 'galeria';
+      return {
+        folder: `cms-municipal/${municipioSlug}/turismo/atractivos/${sub}`,
+        resource_type: 'image',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      };
+    }
     // La portada de un documento es SIEMPRE imagen y va a su propia subcarpeta.
     // (Solo afecta a uploads con fieldname 'portada'; el resto queda igual.)
     if (file.fieldname === 'portada') {
