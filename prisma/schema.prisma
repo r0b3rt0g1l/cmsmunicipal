@@ -29,6 +29,7 @@ model Municipio {
   sevacDocumentos         SevacDocumento[] @relation("SevacMunicipio")
   contenidosEditables     ContenidoEditable[]
   estadisticas            Estadistica[]
+  atractivos              Atractivo[]
 }
 
 model Usuario {
@@ -223,4 +224,33 @@ model Estadistica {
   actualizadoEn      DateTime  @updatedAt
 
   @@index([municipioId, orden])
+}
+
+// Atractivo turístico. Reemplaza el array hardcodeado lib/atractivos.js del portal.
+// Lista + página de detalle por slug (galería, mapa por lat/lon, horario, cercanos).
+// La galería se guarda como Json: [{ url, publicId }].
+model Atractivo {
+  id                 String    @id @default(uuid())
+  municipioId        String
+  municipio          Municipio @relation(fields: [municipioId], references: [id])
+  slug               String
+  nombre             String
+  tipo               String?
+  ubicacion          String?
+  descripcionCorta   String?
+  descripcionLarga   String?
+  imagenUrl          String?
+  cloudinaryPublicId String?
+  galeria            Json      @default("[]")
+  lat                Float?
+  lon                Float?
+  horario            String?
+  destacado          Boolean   @default(false)
+  orden              Int       @default(0)
+  publicado          Boolean   @default(true)
+  creadoEn           DateTime  @default(now())
+  actualizadoEn      DateTime  @updatedAt
+
+  @@unique([municipioId, slug])
+  @@index([municipioId])
 }
