@@ -91,6 +91,8 @@ model Documento {
   mimeType           String?
   fileName           String?
   cloudinaryPublicId String?
+  portadaUrl         String?
+  portadaPublicId    String?
   publicado          Boolean   @default(true)
   orden              Int       @default(0)
 
