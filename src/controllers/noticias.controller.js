@@ -11,6 +11,22 @@ function extractPublicId(url) {
   return m && m[1] ? m[1] : null;
 }
 
+// Valida la fecha de publicación (si viene): debe ser válida y NO futura.
+// Regla autoritativa del backend, no solo del navegador (mismo criterio que "imagen obligatoria").
+// Se compara contra el fin del día de hoy para no rechazar "hoy" por horas/zona horaria.
+function assertPublicarEnValida(publicarEn) {
+  if (!publicarEn) return;
+  const fecha = new Date(publicarEn);
+  if (Number.isNaN(fecha.getTime())) {
+    throw badRequest('La fecha de publicación no es válida.');
+  }
+  const finDeHoy = new Date();
+  finDeHoy.setHours(23, 59, 59, 999);
+  if (fecha > finDeHoy) {
+    throw badRequest('La fecha de publicación no puede ser futura.');
+  }
+}
+
 async function list(req, res, next) {
   try {
     const noticias = await prisma.noticia.findMany({
@@ -71,6 +87,7 @@ async function create(req, res, next) {
     if (!req.file) {
       throw badRequest('La imagen es obligatoria para crear una noticia.');
     }
+    assertPublicarEnValida(publicarEn);
     const imagenUrl = req.file.path;
     const cloudinaryPublicId = extractPublicId(imagenUrl);
 
@@ -128,6 +145,8 @@ async function update(req, res, next) {
     }
 
     const { titulo, contenido, extracto, categoria, estado, publicarEn, slug } = req.body;
+
+    assertPublicarEnValida(publicarEn);
 
     const data = {};
     if (titulo !== undefined) data.titulo = titulo;
