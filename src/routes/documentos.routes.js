@@ -11,8 +11,8 @@ const router = express.Router({ mergeParams: true });
 router.use(resolveMunicipio);
 
 router.get('/', list);
-router.post('/', auth, requireRole('admin', 'editor'), assertSameTenant, upload.single('archivo'), create);
-router.patch('/:id', auth, requireRole('admin', 'editor'), assertSameTenant, upload.single('archivo'), update);
+router.post('/', auth, requireRole('admin', 'editor'), assertSameTenant, upload.fields([{ name: 'archivo', maxCount: 1 }, { name: 'portada', maxCount: 1 }]), create);
+router.patch('/:id', auth, requireRole('admin', 'editor'), assertSameTenant, upload.fields([{ name: 'archivo', maxCount: 1 }, { name: 'portada', maxCount: 1 }]), update);
 router.delete('/:id', auth, requireRole('admin', 'editor'), assertSameTenant, remove);
 
 module.exports = router;

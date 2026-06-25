@@ -31,6 +31,15 @@ const storage = new CloudinaryStorage({
     } else {
       subfolder = req.body?.galeria || 'general';
     }
+    // La portada de un documento es SIEMPRE imagen y va a su propia subcarpeta.
+    // (Solo afecta a uploads con fieldname 'portada'; el resto queda igual.)
+    if (file.fieldname === 'portada') {
+      return {
+        folder: `cms-municipal/${municipioSlug}/transparencia/documentos/portadas`,
+        resource_type: 'image',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      };
+    }
     return {
       folder: `cms-municipal/${municipioSlug}/${subfolder}`,
       resource_type: 'auto',
