@@ -75,7 +75,7 @@ async function create(req, res, next) {
   try {
     const {
       nombre, tipo, ubicacion, descripcionCorta, descripcionLarga,
-      horario, lat, lon, destacado, publicado, orden, slug,
+      horario, lat, lon, mapsUrl, destacado, publicado, orden, slug,
     } = req.body;
 
     if (!nombre) throw badRequest('El nombre es obligatorio.');
@@ -109,6 +109,7 @@ async function create(req, res, next) {
         galeria: galeriaFiles.map(toGaleriaItem),
         lat: parseNum(lat),
         lon: parseNum(lon),
+        mapsUrl: mapsUrl || null,
         horario: horario || null,
         destacado: parseBool(destacado, false),
         publicado: parseBool(publicado, true),
@@ -131,7 +132,7 @@ async function update(req, res, next) {
 
     const {
       nombre, tipo, ubicacion, descripcionCorta, descripcionLarga,
-      horario, lat, lon, destacado, publicado, orden, slug, galeriaEliminar,
+      horario, lat, lon, mapsUrl, destacado, publicado, orden, slug, galeriaEliminar,
     } = req.body;
 
     const data = {};
@@ -143,6 +144,7 @@ async function update(req, res, next) {
     if (horario !== undefined) data.horario = horario || null;
     if (lat !== undefined) data.lat = parseNum(lat);
     if (lon !== undefined) data.lon = parseNum(lon);
+    if (mapsUrl !== undefined) data.mapsUrl = mapsUrl || null;
     if (destacado !== undefined) data.destacado = parseBool(destacado, false);
     if (publicado !== undefined) data.publicado = parseBool(publicado, true);
     if (orden !== undefined) data.orden = orden === '' ? 0 : parseInt(orden, 10);
