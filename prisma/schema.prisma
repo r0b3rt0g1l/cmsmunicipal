@@ -244,6 +244,7 @@ model Atractivo {
   galeria            Json      @default("[]")
   lat                Float?
   lon                Float?
+  mapsUrl            String?
   horario            String?
   destacado          Boolean   @default(false)
   orden              Int       @default(0)
